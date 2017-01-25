@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Globalization;
 using System.util;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
@@ -51,18 +52,22 @@ using iTextSharp.text.html;
  * http://www.lowagie.com/iText/
  */
 
-namespace iTextSharp.text.html.simpleparser {
+namespace iTextSharp.text.html.simpleparser
+{
     /**
     *
     * @author  psoares
     */
-    public class IncCell : ITextElementArray {
-        
+    public class IncCell : ITextElementArray
+    {
+
         private ArrayList chunks = new ArrayList();
         private PdfPCell cell;
-        
+        public float Width { get; } = 0;
+
         /** Creates a new instance of IncCell */
-        public IncCell(String tag, ChainedProperties props) {
+        public IncCell(String tag, ChainedProperties props)
+        {
             cell = new PdfPCell();
             String value = props["colspan"];
             if (value != null)
@@ -70,7 +75,8 @@ namespace iTextSharp.text.html.simpleparser {
             value = props["align"];
             if (tag.Equals("th"))
                 cell.HorizontalAlignment = Element.ALIGN_CENTER;
-            if (value != null) {
+            if (value != null)
+            {
                 if (Util.EqualsIgnoreCase(value, "center"))
                     cell.HorizontalAlignment = Element.ALIGN_CENTER;
                 else if (Util.EqualsIgnoreCase(value, "right"))
@@ -82,7 +88,8 @@ namespace iTextSharp.text.html.simpleparser {
             }
             value = props["valign"];
             cell.VerticalAlignment = Element.ALIGN_MIDDLE;
-            if (value != null) {
+            if (value != null)
+            {
                 if (Util.EqualsIgnoreCase(value, "top"))
                     cell.VerticalAlignment = Element.ALIGN_TOP;
                 else if (Util.EqualsIgnoreCase(value, "bottom"))
@@ -99,42 +106,63 @@ namespace iTextSharp.text.html.simpleparser {
             cell.UseDescender = true;
             value = props["bgcolor"];
             cell.BackgroundColor = Markup.DecodeColor(value);
+
+            value = props["width"];
+            if (!string.IsNullOrEmpty(value))
+            {
+                float num;
+                var isNumber = float.TryParse(value.Substring(0, value.Length - 1),NumberStyles.Any, NumberFormatInfo.InvariantInfo, out num);
+                if (isNumber)
+                {
+                    Width = num / 100f;
+                }
+            }
+            
         }
-        
-        public bool Add(Object o) {
+
+        public bool Add(Object o)
+        {
             if (!(o is IElement))
                 return false;
             cell.AddElement((IElement)o);
             return true;
         }
-        
-        public ArrayList Chunks {
-            get {
+
+        public ArrayList Chunks
+        {
+            get
+            {
                 return chunks;
             }
         }
-        
-        public bool Process(IElementListener listener) {
+
+        public bool Process(IElementListener listener)
+        {
             return true;
         }
-        
-        public int Type {
-            get {
+
+        public int Type
+        {
+            get
+            {
                 return Element.RECTANGLE;
             }
         }
-        
-        public PdfPCell Cell {
-            get {
+
+        public PdfPCell Cell
+        {
+            get
+            {
                 return cell;
             }
-        }    
+        }
 
         /**
         * @see com.lowagie.text.Element#isContent()
         * @since   iText 2.0.8
         */
-        public bool IsContent() {
+        public bool IsContent()
+        {
             return true;
         }
 
@@ -142,11 +170,13 @@ namespace iTextSharp.text.html.simpleparser {
         * @see com.lowagie.text.Element#isNestable()
         * @since   iText 2.0.8
         */
-        public bool IsNestable() {
+        public bool IsNestable()
+        {
             return true;
         }
-  
-        public override string ToString() {
+
+        public override string ToString()
+        {
             return base.ToString();
         }
     }

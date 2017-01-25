@@ -66,26 +66,5 @@ namespace ItextTests
             Assert.AreEqual(1, objects.Count);
         }
 
-        [TestMethod]
-        public void Parse_Tables()
-        {
-            StyleSheet styles = new StyleSheet();
-            styles.LoadTagStyle(HtmlTags.UNORDEREDLIST, "indent", "20");
-            styles.LoadTagStyle(HtmlTags.LISTITEM, "leading", "20");
-            styles.LoadTagStyle(HtmlTags.ORDEREDLIST, "indent", "20");
-            styles.LoadTagStyle(HtmlTags.PARAGRAPH, HtmlTags.TOPMARGIN, "40");
-
-            string strTexto = @"<table border=""1""><tbody><tr><td>teste</td><td>sdfsfsfsdf</td></tr><tr><td>sfsdfsdfsdfsdfsdfsdfsdf</td><td>sdfsdfsdfsdfsdfsdfsdfsdf</td></tr></tbody></table>";
-            var objects = HTMLWorker.ParseToList(new StringReader(strTexto), styles);
-            foreach (var element in objects)
-            {
-                var objParagraph = new Paragraph() { KeepTogether = false, Alignment = Element.ALIGN_JUSTIFIED };
-                objParagraph.Add((IElement)element);
-                var objPdfPCell = new PdfPCell { HorizontalAlignment = Element.ALIGN_JUSTIFIED, Border = 0, Padding = 0, PaddingTop = 8 };
-                objPdfPCell.AddElement(objParagraph);
-
-            }
-            Assert.AreEqual(1, objects.Count);
-        }
     }
 }

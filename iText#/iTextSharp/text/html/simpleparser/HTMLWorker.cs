@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.util;
 using iTextSharp.text;
@@ -617,14 +619,14 @@ namespace iTextSharp.text.html.simpleparser
                     EndElement("td");
                 pendingTR = false;
                 cprops.RemoveChain("tr");
-                ArrayList cells = new ArrayList();
+                List<IncCell> cells = new List<IncCell>();
                 IncTable table = null;
                 while (true)
                 {
                     Object obj = stack.Pop();
                     if (obj is IncCell)
                     {
-                        cells.Add(((IncCell)obj).Cell);
+                        cells.Add(((IncCell)obj));
                     }
                     if (obj is IncTable)
                     {
@@ -632,8 +634,21 @@ namespace iTextSharp.text.html.simpleparser
                         break;
                     }
                 }
-                table.AddCols(cells);
+                table.AddCols(new ArrayList(cells.Select(x => x.Cell).ToList()));
+                // adiciona as colunas na linha e zera as colunas da table
                 table.EndRow();
+                // If is the first row, set the cols widths
+                if (table.Rows.Count == 1)
+                {
+                    float[] widths = new float[cells.Count];
+
+                    for (int i = cells.Count; i > 0; i--)
+                    {
+                        widths[i - 1] = cells[cells.Count - i].Width;
+                    }
+
+                    table.SetWidths(new ArrayList(widths));
+                }
                 stack.Push(table);
                 skipText = true;
                 return;
