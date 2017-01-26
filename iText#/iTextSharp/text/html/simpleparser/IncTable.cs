@@ -156,7 +156,6 @@ namespace iTextSharp.text.html.simpleparser
                 ArrayList col = (ArrayList)rows[row];
                 for (int k = 0; k < col.Count; ++k)
                 {
-                    //col.
                     table.AddCell((PdfPCell)col[k]);
                 }
             }
