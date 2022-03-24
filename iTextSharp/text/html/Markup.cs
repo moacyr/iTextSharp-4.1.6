@@ -366,7 +366,7 @@ namespace iTextSharp.text.html {
                         break;
                 }
             }
-            if (pos == 0) return 0f;
+            if (pos == 0) return DEFAULT_FONT_SIZE;
             if (pos == length) return float.Parse(str, System.Globalization.NumberFormatInfo.InvariantInfo);
             float f = float.Parse(str.Substring(0, pos), System.Globalization.NumberFormatInfo.InvariantInfo);
             str = str.Substring(pos);

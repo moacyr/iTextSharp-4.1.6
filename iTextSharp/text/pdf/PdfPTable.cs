@@ -477,7 +477,9 @@ namespace iTextSharp.text.pdf {
             PdfPCell aboveCell = (PdfPCell)aboveRow.GetCells()[currCol];
             while ((aboveCell == null) && (row > 0)) {
                 aboveRow  = (PdfPRow)rows[--row];
-                aboveCell = (PdfPCell)aboveRow.GetCells()[currCol];
+                if (aboveRow == null)
+                    return false;
+                aboveCell = aboveRow.GetCells()[currCol];
             }
             
             int distance = currRow - row;
@@ -765,42 +767,67 @@ namespace iTextSharp.text.pdf {
         * @param firsttime  is this the first time the row heigh is calculated?
         * @return the height of a particular row
         * @since    3.0.0
-        */    
-        public float GetRowHeight(int idx, bool firsttime) {
+        */
+        public float GetRowHeight(int idx, bool firsttime)
+        {
             if (totalWidth <= 0 || idx < 0 || idx >= rows.Count)
+            {
                 return 0;
+            }
+
             PdfPRow row = (PdfPRow)rows[idx];
             if (row == null)
+            {
                 return 0;
+            }
+
             if (firsttime)
+            {
                 row.SetWidths(absoluteWidths);
+            }
+
             float height = row.MaxHeights;
             PdfPCell cell;
             PdfPRow tmprow;
-            for (int i = 0; i < relativeWidths.Length; i++) {
-                if(!RowSpanAbove(idx, i))
+
+            for (int i = 0; i < relativeWidths.Length; i++)
+            {
+                if (!RowSpanAbove(idx, i))
+                {
                     continue;
+                }
                 int rs = 1;
-                while (RowSpanAbove(idx - rs, i)) {
+                while (RowSpanAbove(idx - rs, i))
+                {
                     rs++;
                 }
                 tmprow = (PdfPRow)rows[idx - rs];
                 cell = tmprow.GetCells()[i];
-                float tmp = 0;
-                if (cell.Rowspan == rs + 1) {
-                    tmp = cell.GetMaxHeight();
-                    while (rs > 0) {
-                        tmp -= GetRowHeight(idx - rs);
-                        rs--;
+                //Este teste é necessário porque pode haver colspans, ou seja a quantidade de colunas pode ser diferente na linha e o índice inválido
+                if (cell != null)
+                {
+                    float tmp = 0;
+                    if (cell.Rowspan == rs + 1)
+                    {
+                        tmp = cell.GetMaxHeight();
+                        while (rs > 0)
+                        {
+                            tmp -= GetRowHeight(idx - rs);
+                            rs--;
+                        }
+                    }
+
+                    if (tmp > height)
+                    {
+                        height = tmp;
                     }
                 }
-                if (tmp > height)
-                    height = tmp;
             }
+
             row.MaxHeights = height;
             return height;
         }
-        
+
         /**
         * Gets the maximum height of a cell in a particular row (will only be different
         * from getRowHeight is one of the cells in the row has a rowspan > 1).
@@ -809,7 +836,7 @@ namespace iTextSharp.text.pdf {
         * @param    cellIndex   the cell index
         * @return the height of a particular row including rowspan
         * @since    2.1.6
-        */    
+        */
         public float GetRowspanHeight(int rowIndex, int cellIndex) {
             if (totalWidth <= 0 || rowIndex < 0 || rowIndex >= rows.Count)
                 return 0;

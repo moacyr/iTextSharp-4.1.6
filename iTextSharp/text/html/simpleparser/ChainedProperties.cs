@@ -1,5 +1,10 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+
 /*
  * Copyright 2004 Paulo Soares
  *
@@ -47,20 +52,26 @@ using System.Collections;
  * http://www.lowagie.com/iText/
  */
 
-namespace iTextSharp.text.html.simpleparser {
+namespace iTextSharp.text.html.simpleparser
+{
 
-public class ChainedProperties {
-    
-        public static int[] fontSizes = {8, 10, 12, 14, 18, 24, 36};
+    public class ChainedProperties
+    {
+
+        public static int[] fontSizes = { 8, 10, 12, 14, 18, 24, 36 };
         public ArrayList chain = new ArrayList();
-        
+
         /** Creates a new instance of ChainedProperties */
-        public ChainedProperties() {
+        public ChainedProperties()
+        {
         }
-        
-        public String this[String key] {
-            get {
-                for (int k = chain.Count - 1; k >= 0; --k) {
+
+        public String this[String key]
+        {
+            get
+            {
+                for (int k = chain.Count - 1; k >= 0; --k)
+                {
                     Object[] obj = (Object[])chain[k];
                     Hashtable prop = (Hashtable)obj[1];
                     String ret = (String)prop[key];
@@ -70,9 +81,66 @@ public class ChainedProperties {
                 return null;
             }
         }
-        
-        public bool HasProperty(String key) {
-            for (int k = chain.Count - 1; k >= 0; --k) {
+
+        public string GetParentProp(string htmlTag, string key)
+        {
+            for (int k = chain.Count - 1; k >= 0; --k)
+            {
+                Object[] obj = (Object[])chain[k];
+                Hashtable prop = (Hashtable)obj[1];
+                String ret = (String)prop[key];
+                if (ret != null)
+                    return ret;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Get properties until find first tag.
+        /// Used to get all properties of an inline style recusively.
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="htmlTag"></param>
+        /// <returns></returns>
+        public string ConcatPropertyUntilTag(string key, string htmlTag)
+        {
+            List<string> props = new List<string>();
+            StringBuilder result = new StringBuilder();
+            for (int k = chain.Count - 1; k >= 0; --k)
+            {
+                Object[] obj = (Object[])chain[k];
+                Hashtable prop = (Hashtable)obj[1];
+                String ret = (String)prop[key];
+                if (ret != null)
+                {
+                    if (!props.Contains(key))
+                    {
+                        result.Append(ret);
+                        props.Add(key);
+                    }
+                }
+                if ((string)obj[0] == htmlTag)
+                {
+                    break;
+                }
+            }
+            return result.ToString();
+        }
+
+        public string GetCurrentProp(string key)
+        {
+
+            Object[] obj = (Object[])chain[chain.Count - 1];
+            Hashtable prop = (Hashtable)obj[1];
+            String ret = (String)prop[key];
+            return ret;
+        }
+
+        public bool HasProperty(String key)
+        {
+            for (int k = chain.Count - 1; k >= 0; --k)
+            {
                 Object[] obj = (Object[])chain[k];
                 Hashtable prop = (Hashtable)obj[1];
                 if (prop.ContainsKey(key))
@@ -80,24 +148,31 @@ public class ChainedProperties {
             }
             return false;
         }
-        
-        public void AddToChain(String key, Hashtable prop) {
+
+        public void AddToChain(String key, Hashtable prop)
+        {
             // adjust the font size
             String value = (String)prop[ElementTags.SIZE];
-            if (value != null) {
-                if (value.EndsWith("pt")) {
+            if (value != null)
+            {
+                if (value.EndsWith("pt"))
+                {
                     prop[ElementTags.SIZE] = value.Substring(0, value.Length - 2);
                 }
-                else {
+                else
+                {
                     int s = 0;
-                    if (value.StartsWith("+") || value.StartsWith("-")) {
+                    if (value.StartsWith("+") || value.StartsWith("-"))
+                    {
                         String old = this["basefontsize"];
                         if (old == null)
                             old = "12";
                         float f = float.Parse(old, System.Globalization.NumberFormatInfo.InvariantInfo);
                         int c = (int)f;
-                        for (int k = fontSizes.Length - 1; k >= 0; --k) {
-                            if (c >= fontSizes[k]) {
+                        for (int k = fontSizes.Length - 1; k >= 0; --k)
+                        {
+                            if (c >= fontSizes[k])
+                            {
                                 s = k;
                                 break;
                             }
@@ -105,11 +180,14 @@ public class ChainedProperties {
                         int inc = int.Parse(value.StartsWith("+") ? value.Substring(1) : value);
                         s += inc;
                     }
-                    else {
-                        try {
+                    else
+                    {
+                        try
+                        {
                             s = int.Parse(value) - 1;
                         }
-                        catch {
+                        catch
+                        {
                             s = 0;
                         }
                     }
@@ -120,12 +198,15 @@ public class ChainedProperties {
                     prop[ElementTags.SIZE] = fontSizes[s].ToString();
                 }
             }
-            chain.Add(new Object[]{key, prop});
+            chain.Add(new Object[] { key, prop });
         }
-        
-        public void RemoveChain(String key) {
-            for (int k = chain.Count - 1; k >= 0; --k) {
-                if (key.Equals(((Object[])chain[k])[0])) {
+
+        public void RemoveChain(String key)
+        {
+            for (int k = chain.Count - 1; k >= 0; --k)
+            {
+                if (key.Equals(((Object[])chain[k])[0]))
+                {
                     chain.RemoveAt(k);
                     return;
                 }

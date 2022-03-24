@@ -237,7 +237,7 @@ namespace iTextSharp.text.xml.simpleparser {
                     } else if (character == '&') {
                         SaveState(state);
                         entity.Length = 0;
-                        state = ENTITY;
+                        state = ENTITY;                        
                     } else if (Char.IsWhiteSpace((char)character)) {
                         if (nowhite)
                             text.Append((char)character);
@@ -374,6 +374,7 @@ namespace iTextSharp.text.xml.simpleparser {
                             text.Append('&').Append(cent).Append(';');
                         else
                             text.Append(ce);
+                            nowhite = true;
                     } else if ((character != '#' && (character < '0' || character > '9') && (character < 'a' || character > 'z')
                         && (character < 'A' || character > 'Z')) || entity.Length >= 7) {
                         state = RestoreState();

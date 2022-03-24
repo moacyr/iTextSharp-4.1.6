@@ -1,11 +1,10 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Collections;
-using System.Globalization;
+using System.Collections.Generic;
 using System.util;
-using iTextSharp.text;
-using iTextSharp.text.html;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.draw;
 using iTextSharp.text.xml.simpleparser;
@@ -56,10 +55,12 @@ using iTextSharp.text.xml.simpleparser;
  * http://www.lowagie.com/iText/
  */
 
-namespace iTextSharp.text.html.simpleparser {
+namespace iTextSharp.text.html.simpleparser
+{
 
-    public class HTMLWorker : ISimpleXMLDocHandler, IDocListener {
-        
+    public class HTMLWorker : ISimpleXMLDocHandler, IDocListener
+    {
+
         protected ArrayList objectList;
         protected IDocListener document;
         private Paragraph currentParagraph;
@@ -74,23 +75,31 @@ namespace iTextSharp.text.html.simpleparser {
         private bool skipText = false;
         private Hashtable interfaceProps;
         private FactoryProperties factoryProperties = new FactoryProperties();
-        
+        private bool isParagraph = false;
+        private int numberOfColumns = 0;
+
         /** Creates a new instance of HTMLWorker */
-        public HTMLWorker(IDocListener document) {
+        public HTMLWorker(IDocListener document)
+        {
             this.document = document;
         }
-        
-        public StyleSheet Style {
-            set {
+
+        public StyleSheet Style
+        {
+            set
+            {
                 style = value;
             }
-            get {
+            get
+            {
                 return style;
             }
         }
-        
-        public Hashtable InterfaceProps {
-            set {
+
+        public Hashtable InterfaceProps
+        {
+            set
+            {
                 interfaceProps = value;
                 FontFactoryImp ff = null;
                 if (interfaceProps != null)
@@ -98,20 +107,24 @@ namespace iTextSharp.text.html.simpleparser {
                 if (ff != null)
                     factoryProperties.FontImp = ff;
             }
-            get {
+            get
+            {
                 return interfaceProps;
             }
         }
 
-        public void Parse(TextReader reader) {
+        public void Parse(TextReader reader)
+        {
             SimpleXMLParser.Parse(this, null, reader, true);
         }
-        
-        public static ArrayList ParseToList(TextReader reader, StyleSheet style) {
+
+        public static ArrayList ParseToList(TextReader reader, StyleSheet style)
+        {
             return ParseToList(reader, style, null);
         }
 
-        public static ArrayList ParseToList(TextReader reader, StyleSheet style, Hashtable interfaceProps) {
+        public static ArrayList ParseToList(TextReader reader, StyleSheet style, Hashtable interfaceProps)
+        {
             HTMLWorker worker = new HTMLWorker(null);
             if (style != null)
                 worker.Style = style;
@@ -121,34 +134,39 @@ namespace iTextSharp.text.html.simpleparser {
             worker.Parse(reader);
             return worker.objectList;
         }
-        
-        public virtual void EndDocument() {
+
+        public virtual void EndDocument()
+        {
             foreach (IElement e in stack)
                 document.Add(e);
             if (currentParagraph != null)
                 document.Add(currentParagraph);
             currentParagraph = null;
         }
-        
-        public virtual void StartDocument() {
+
+        public virtual void StartDocument()
+        {
             Hashtable h = new Hashtable();
             style.ApplyStyle("body", h);
             cprops.AddToChain("body", h);
         }
-        
-        public virtual void StartElement(String tag, Hashtable h) {
+
+        public virtual void StartElement(String tag, Hashtable h)
+        {
             if (!tagsSupported.ContainsKey(tag))
                 return;
             style.ApplyStyle(tag, h);
             String follow = (String)FactoryProperties.followTags[tag];
-            if (follow != null) {
+            if (follow != null)
+            {
                 Hashtable prop = new Hashtable();
                 prop[follow] = null;
                 cprops.AddToChain(follow, prop);
                 return;
             }
             FactoryProperties.InsertStyle(h, cprops);
-            if (tag.Equals(HtmlTags.ANCHOR)) {
+            if (tag.Equals(HtmlTags.ANCHOR))
+            {
                 cprops.AddToChain(tag, h);
                 if (currentParagraph == null)
                     currentParagraph = new Paragraph();
@@ -156,23 +174,27 @@ namespace iTextSharp.text.html.simpleparser {
                 currentParagraph = new Paragraph();
                 return;
             }
-            if (tag.Equals(HtmlTags.NEWLINE)) {
+            if (tag.Equals(HtmlTags.NEWLINE))
+            {
                 if (currentParagraph == null)
                     currentParagraph = new Paragraph();
                 currentParagraph.Add(factoryProperties.CreateChunk("\n", cprops));
                 return;
             }
-            if (tag.Equals(HtmlTags.HORIZONTALRULE)) {
+            if (tag.Equals(HtmlTags.HORIZONTALRULE))
+            {
                 // Attempting to duplicate the behavior seen on Firefox with
                 // http://www.w3schools.com/tags/tryit.asp?filename=tryhtml_hr_test
                 // where an initial break is only inserted when the preceding element doesn't
                 // end with a break, but a trailing break is always inserted.
                 bool addLeadingBreak = true;
-                if (currentParagraph == null) {
+                if (currentParagraph == null)
+                {
                     currentParagraph = new Paragraph();
                     addLeadingBreak = false;
                 }
-                if (addLeadingBreak) { // Not a new paragraph
+                if (addLeadingBreak)
+                { // Not a new paragraph
                     int numChunks = currentParagraph.Chunks.Count;
                     if (numChunks == 0 ||
                         ((Chunk)currentParagraph.Chunks[numChunks - 1]).Content.EndsWith("\n"))
@@ -180,15 +202,17 @@ namespace iTextSharp.text.html.simpleparser {
                 }
                 String align = (String)h["align"];
                 int hrAlign = Element.ALIGN_CENTER;
-                if (align != null) {
+                if (align != null)
+                {
                     if (Util.EqualsIgnoreCase(align, "left"))
-                        hrAlign = Element.ALIGN_LEFT; 
+                        hrAlign = Element.ALIGN_LEFT;
                     if (Util.EqualsIgnoreCase(align, "right"))
                         hrAlign = Element.ALIGN_RIGHT;
                 }
                 String width = (String)h["width"];
                 float hrWidth = 1;
-                if (width != null) {
+                if (width != null)
+                {
                     float tmpWidth = Markup.ParseLength(width, Markup.DEFAULT_FONT_SIZE);
                     if (tmpWidth > 0) hrWidth = tmpWidth;
                     if (!width.EndsWith("%"))
@@ -196,41 +220,51 @@ namespace iTextSharp.text.html.simpleparser {
                 }
                 String size = (String)h["size"];
                 float hrSize = 1;
-                if (size != null) {
+                if (size != null)
+                {
                     float tmpSize = Markup.ParseLength(size, Markup.DEFAULT_FONT_SIZE);
                     if (tmpSize > 0)
                         hrSize = tmpSize;
                 }
                 if (addLeadingBreak)
                     currentParagraph.Add(Chunk.NEWLINE);
-                currentParagraph.Add(new LineSeparator(hrSize, hrWidth, null, hrAlign, currentParagraph.Leading/2));
+                currentParagraph.Add(new LineSeparator(hrSize, hrWidth, null, hrAlign, currentParagraph.Leading / 2));
                 currentParagraph.Add(Chunk.NEWLINE);
                 return;
             }
-            if (tag.Equals(HtmlTags.CHUNK) || tag.Equals(HtmlTags.SPAN)) {
+            if (tag.Equals(HtmlTags.CHUNK) || tag.Equals(HtmlTags.SPAN))
+            {
                 cprops.AddToChain(tag, h);
                 return;
             }
-            if (tag.Equals(HtmlTags.IMAGE)) {
+            if (tag.Equals(HtmlTags.IMAGE))
+            {
                 String src = (String)h[ElementTags.SRC];
                 if (src == null)
                     return;
                 cprops.AddToChain(tag, h);
                 Image img = null;
-                if (interfaceProps != null) {
+                if (interfaceProps != null)
+                {
                     IImageProvider ip = (IImageProvider)interfaceProps["img_provider"];
                     if (ip != null)
                         img = ip.GetImage(src, h, cprops, document);
-                    if (img == null) {
+                    if (img == null)
+                    {
                         Hashtable images = (Hashtable)interfaceProps["img_static"];
-                        if (images != null) {
+                        if (images != null)
+                        {
                             Image tim = (Image)images[src];
                             if (tim != null)
                                 img = Image.GetInstance(tim);
-                        } else {
-                            if (!src.StartsWith("http")) { // relative src references only
+                        }
+                        else
+                        {
+                            if (!src.StartsWith("http"))
+                            { // relative src references only
                                 String baseurl = (String)interfaceProps["img_baseurl"];
-                                if (baseurl != null) {
+                                if (baseurl != null)
+                                {
                                     src = baseurl + src;
                                     img = Image.GetInstance(src);
                                 }
@@ -238,8 +272,10 @@ namespace iTextSharp.text.html.simpleparser {
                         }
                     }
                 }
-                if (img == null) {
-                    if (!src.StartsWith("http")) {
+                if (img == null)
+                {
+                    if (!src.StartsWith("http"))
+                    {
                         String path = cprops["image_path"];
                         if (path == null)
                             path = "";
@@ -261,17 +297,23 @@ namespace iTextSharp.text.html.simpleparser {
                     actualFontSize = Markup.DEFAULT_FONT_SIZE;
                 float widthInPoints = Markup.ParseLength(width, actualFontSize);
                 float heightInPoints = Markup.ParseLength(height, actualFontSize);
-                if (widthInPoints > 0 && heightInPoints > 0) {
+                if (widthInPoints > 0 && heightInPoints > 0)
+                {
                     img.ScaleAbsolute(widthInPoints, heightInPoints);
-                } else if (widthInPoints > 0) {
+                }
+                else if (widthInPoints > 0)
+                {
                     heightInPoints = img.Height * widthInPoints / img.Width;
                     img.ScaleAbsolute(widthInPoints, heightInPoints);
-                } else if (heightInPoints > 0) {
+                }
+                else if (heightInPoints > 0)
+                {
                     widthInPoints = img.Width * heightInPoints / img.Height;
                     img.ScaleAbsolute(widthInPoints, heightInPoints);
                 }
                 img.WidthPercentage = 0;
-                if (align != null) {
+                if (align != null)
+                {
                     EndElement("p");
                     int ralign = Image.MIDDLE_ALIGN;
                     if (Util.EqualsIgnoreCase(align, "left"))
@@ -281,7 +323,8 @@ namespace iTextSharp.text.html.simpleparser {
                     img.Alignment = ralign;
                     IImg i = null;
                     bool skip = false;
-                    if (interfaceProps != null) {
+                    if (interfaceProps != null)
+                    {
                         i = (IImg)interfaceProps["img_interface"];
                         if (i != null)
                             skip = i.Process(img, h, cprops, document);
@@ -290,7 +333,8 @@ namespace iTextSharp.text.html.simpleparser {
                         document.Add(img);
                     cprops.RemoveChain(tag);
                 }
-                else {
+                else
+                {
                     cprops.RemoveChain(tag);
                     if (currentParagraph == null)
                         currentParagraph = FactoryProperties.CreateParagraph(cprops);
@@ -300,44 +344,60 @@ namespace iTextSharp.text.html.simpleparser {
             }
 
             EndElement("p");
-            if (tag.Equals("h1") || tag.Equals("h2") || tag.Equals("h3") || tag.Equals("h4") || tag.Equals("h5") || tag.Equals("h6")) {
-                if (!h.ContainsKey(ElementTags.SIZE)) {
+            if (tag == "p")
+            {
+                isParagraph = true;
+            }
+
+            if (tag.Equals("h1") || tag.Equals("h2") || tag.Equals("h3") || tag.Equals("h4") || tag.Equals("h5") || tag.Equals("h6"))
+            {
+                if (!h.ContainsKey(ElementTags.SIZE))
+                {
                     int v = 7 - int.Parse(tag.Substring(1));
                     h[ElementTags.SIZE] = v.ToString();
                 }
                 cprops.AddToChain(tag, h);
                 return;
             }
-            if (tag.Equals(HtmlTags.UNORDEREDLIST)) {
+            if (tag.Equals(HtmlTags.UNORDEREDLIST))
+            {
                 if (pendingLI)
                     EndElement(HtmlTags.LISTITEM);
                 skipText = true;
                 cprops.AddToChain(tag, h);
                 List list = new List(false);
-                try{
+                try
+                {
                     list.IndentationLeft = float.Parse(cprops["indent"], System.Globalization.NumberFormatInfo.InvariantInfo);
-                }catch {
+                }
+                catch
+                {
                     list.Autoindent = true;
                 }
                 list.SetListSymbol("\u2022");
                 stack.Push(list);
                 return;
             }
-            if (tag.Equals(HtmlTags.ORDEREDLIST)) {
+            if (tag.Equals(HtmlTags.ORDEREDLIST))
+            {
                 if (pendingLI)
                     EndElement(HtmlTags.LISTITEM);
                 skipText = true;
                 cprops.AddToChain(tag, h);
                 List list = new List(true);
-                try{
+                try
+                {
                     list.IndentationLeft = float.Parse(cprops["indent"], System.Globalization.NumberFormatInfo.InvariantInfo);
-                }catch {
+                }
+                catch
+                {
                     list.Autoindent = true;
                 }
                 stack.Push(list);
                 return;
             }
-            if (tag.Equals(HtmlTags.LISTITEM)) {
+            if (tag.Equals(HtmlTags.LISTITEM))
+            {
                 if (pendingLI)
                     EndElement(HtmlTags.LISTITEM);
                 skipText = false;
@@ -346,73 +406,87 @@ namespace iTextSharp.text.html.simpleparser {
                 stack.Push(FactoryProperties.CreateListItem(cprops));
                 return;
             }
-            if (tag.Equals(HtmlTags.DIV) || tag.Equals(HtmlTags.BODY) || tag.Equals("p")) {
+            if (tag.Equals(HtmlTags.DIV) || tag.Equals(HtmlTags.BODY) || tag.Equals("p"))
+            {
                 cprops.AddToChain(tag, h);
                 return;
             }
-            if (tag.Equals(HtmlTags.PRE)) {
-                if (!h.ContainsKey(ElementTags.FACE)) {
+            if (tag.Equals(HtmlTags.PRE))
+            {
+                if (!h.ContainsKey(ElementTags.FACE))
+                {
                     h[ElementTags.FACE] = "Courier";
                 }
                 cprops.AddToChain(tag, h);
                 isPRE = true;
                 return;
             }
-            if (tag.Equals("tr")) {
+            if (tag.Equals(HtmlTags.ROW))
+            {
                 if (pendingTR)
-                    EndElement("tr");
+                    EndElement(HtmlTags.ROW);
                 skipText = true;
                 pendingTR = true;
-                cprops.AddToChain("tr", h);
+                cprops.AddToChain(HtmlTags.ROW, h);
                 return;
             }
-            if (tag.Equals("td") || tag.Equals("th")) {
+            if (tag.Equals(HtmlTags.CELL) || tag.Equals(HtmlTags.HEADERCELL))
+            {
                 if (pendingTD)
                     EndElement(tag);
                 skipText = false;
                 pendingTD = true;
-                cprops.AddToChain("td", h);
+                cprops.AddToChain(HtmlTags.CELL, h);
                 stack.Push(new IncCell(tag, cprops));
                 return;
             }
-            if (tag.Equals("table")) {
-                cprops.AddToChain("table", h);
+            if (tag.Equals(HtmlTags.TABLE))
+            {
+                cprops.AddToChain(HtmlTags.TABLE, h);
                 IncTable table = new IncTable(h);
                 stack.Push(table);
-                tableState.Push(new bool[]{pendingTR, pendingTD});
+                tableState.Push(new bool[] { pendingTR, pendingTD });
                 pendingTR = pendingTD = false;
                 skipText = true;
                 return;
             }
         }
-        
-        public virtual void EndElement(String tag) {
+
+        public virtual void EndElement(String tag)
+        {
             if (!tagsSupported.ContainsKey(tag))
                 return;
             String follow = (String)FactoryProperties.followTags[tag];
-            if (follow != null) {
+            if (follow != null)
+            {
                 cprops.RemoveChain(follow);
                 return;
             }
-            if (tag.Equals("font") || tag.Equals("span")) {
+            if (tag.Equals("font") || tag.Equals("span"))
+            {
                 cprops.RemoveChain(tag);
                 return;
             }
-            if (tag.Equals("a")) {
+            if (tag.Equals("a"))
+            {
                 if (currentParagraph == null)
                     currentParagraph = new Paragraph();
                 IALink i = null;
                 bool skip = false;
-                if (interfaceProps != null) {
+                if (interfaceProps != null)
+                {
                     i = (IALink)interfaceProps["alink_interface"];
                     if (i != null)
                         skip = i.Process(currentParagraph, cprops);
                 }
-                if (!skip) {
+                if (!skip)
+                {
                     String href = cprops["href"];
-                    if (href != null) {
+                    if (href != null)
+                    {
                         ArrayList chunks = currentParagraph.Chunks;
-                        for (int k = 0; k < chunks.Count; ++k) {
+                        for (int k = 0; k < chunks.Count; ++k)
+                        {
                             Chunk ck = (Chunk)chunks[k];
                             ck.SetAnchor(href);
                         }
@@ -426,15 +500,19 @@ namespace iTextSharp.text.html.simpleparser {
                 cprops.RemoveChain("a");
                 return;
             }
-            if (tag.Equals("br")) {
+            if (tag.Equals("br"))
+            {
                 return;
             }
-            if (currentParagraph != null) {
+            if (currentParagraph != null)
+            {
                 if (stack.Count == 0)
                     document.Add(currentParagraph);
-                else {
+                else
+                {
                     Object obj = stack.Pop();
-                    if (obj is ITextElementArray) {
+                    if (obj is ITextElementArray)
+                    {
                         ITextElementArray current = (ITextElementArray)obj;
                         current.Add(currentParagraph);
                     }
@@ -442,7 +520,8 @@ namespace iTextSharp.text.html.simpleparser {
                 }
             }
             currentParagraph = null;
-            if (tag.Equals(HtmlTags.UNORDEREDLIST) || tag.Equals(HtmlTags.ORDEREDLIST)) {
+            if (tag.Equals(HtmlTags.UNORDEREDLIST) || tag.Equals(HtmlTags.ORDEREDLIST))
+            {
                 if (pendingLI)
                     EndElement(HtmlTags.LISTITEM);
                 skipText = false;
@@ -450,7 +529,8 @@ namespace iTextSharp.text.html.simpleparser {
                 if (stack.Count == 0)
                     return;
                 Object obj = stack.Pop();
-                if (!(obj is List)) {
+                if (!(obj is List))
+                {
                     stack.Push(obj);
                     return;
                 }
@@ -460,23 +540,27 @@ namespace iTextSharp.text.html.simpleparser {
                     ((ITextElementArray)stack.Peek()).Add(obj);
                 return;
             }
-            if (tag.Equals(HtmlTags.LISTITEM)) {
+            if (tag.Equals(HtmlTags.LISTITEM))
+            {
                 pendingLI = false;
                 skipText = true;
                 cprops.RemoveChain(tag);
                 if (stack.Count == 0)
                     return;
                 Object obj = stack.Pop();
-                if (!(obj is ListItem)) {
+                if (!(obj is ListItem))
+                {
                     stack.Push(obj);
                     return;
                 }
-                if (stack.Count == 0) {
+                if (stack.Count == 0)
+                {
                     document.Add((IElement)obj);
                     return;
                 }
                 Object list = stack.Pop();
-                if (!(list is List)) {
+                if (!(list is List))
+                {
                     stack.Push(list);
                     return;
                 }
@@ -488,28 +572,33 @@ namespace iTextSharp.text.html.simpleparser {
                 stack.Push(list);
                 return;
             }
-            if (tag.Equals("div") || tag.Equals("body")) {
+            if (tag.Equals("div") || tag.Equals("body"))
+            {
                 cprops.RemoveChain(tag);
                 return;
             }
-            if (tag.Equals(HtmlTags.PRE)) {
+            if (tag.Equals(HtmlTags.PRE))
+            {
                 cprops.RemoveChain(tag);
                 isPRE = false;
                 return;
             }
-            if (tag.Equals("p")) {
+            if (tag.Equals("p"))
+            {
                 cprops.RemoveChain(tag);
                 return;
             }
-            if (tag.Equals("h1") || tag.Equals("h2") || tag.Equals("h3") || tag.Equals("h4") || tag.Equals("h5") || tag.Equals("h6")) {
+            if (tag.Equals("h1") || tag.Equals("h2") || tag.Equals("h3") || tag.Equals("h4") || tag.Equals("h5") || tag.Equals("h6"))
+            {
                 cprops.RemoveChain(tag);
                 return;
             }
-            if (tag.Equals("table")) {
+            if (tag.Equals("table"))
+            {
                 if (pendingTR)
                     EndElement("tr");
                 cprops.RemoveChain("table");
-                IncTable table = (IncTable) stack.Pop();
+                IncTable table = (IncTable)stack.Pop();
                 PdfPTable tb = table.BuildTable();
                 tb.SplitRows = true;
                 if (stack.Count == 0)
@@ -522,64 +611,92 @@ namespace iTextSharp.text.html.simpleparser {
                 skipText = false;
                 return;
             }
-            if (tag.Equals("tr")) {
+            if (tag.Equals("tr"))
+            {
                 if (pendingTD)
                     EndElement("td");
                 pendingTR = false;
                 cprops.RemoveChain("tr");
-                ArrayList cells = new ArrayList();
+                List<IncCell> cells = new List<IncCell>();
                 IncTable table = null;
-                while (true) {
+                while (true)
+                {
                     Object obj = stack.Pop();
-                    if (obj is IncCell) {
-                        cells.Add(((IncCell)obj).Cell);
+                    if (obj is IncCell)
+                    {
+                        cells.Add(((IncCell)obj));
                     }
-                    if (obj is IncTable) {
+                    if (obj is IncTable)
+                    {
                         table = (IncTable)obj;
                         break;
                     }
                 }
-                table.AddCols(cells);
+                table.AddCols(new ArrayList(cells.Select(x => x.Cell).ToList()));
+                // adiciona as colunas na linha e zera as colunas da table
                 table.EndRow();
+
+                // If is the first row, set the cols widths
+                if (table.Rows.Count == 1 || cells.Count > numberOfColumns)
+                {
+                    numberOfColumns = cells.Count;
+
+                    float[] widths = new float[cells.Count];
+
+                    for (int i = cells.Count; i > 0; i--)
+                    {
+                        widths[i - 1] = cells[cells.Count - i].Width;
+                    }
+
+                    table.SetWidths(new ArrayList(widths));
+                }
                 stack.Push(table);
                 skipText = true;
                 return;
             }
-            if (tag.Equals("td") || tag.Equals("th")) {
+            if (tag.Equals("td") || tag.Equals("th"))
+            {
                 pendingTD = false;
                 cprops.RemoveChain("td");
                 skipText = true;
                 return;
             }
         }
-        
-        public virtual void Text(String str) {
+
+        public virtual void Text(String str)
+        {
             if (skipText)
                 return;
             String content = str;
-            if (isPRE) {
+            if (isPRE)
+            {
                 if (currentParagraph == null)
                     currentParagraph = FactoryProperties.CreateParagraph(cprops);
                 currentParagraph.Add(factoryProperties.CreateChunk(content, cprops));
                 return;
             }
-            if (content.Trim().Length == 0 && content.IndexOf(' ') < 0) {
+            if (content.Trim().Length == 0 && content.IndexOf(' ') < 0 && !isParagraph)
+            {
                 return;
             }
-            
+
             StringBuilder buf = new StringBuilder();
             int len = content.Length;
             char character;
             bool newline = false;
-            for (int i = 0; i < len; i++) {
-                switch (character = content[i]) {
+            for (int i = 0; i < len; i++)
+            {
+                switch (character = content[i])
+                {
                     case ' ':
-                        if (!newline) {
+                        if (!newline)
+                        {
                             buf.Append(character);
                         }
                         break;
                     case '\n':
-                        if (i > 0) {
+                        if (i > 0)
+                        {
                             newline = true;
                             buf.Append(' ');
                         }
@@ -597,78 +714,98 @@ namespace iTextSharp.text.html.simpleparser {
             if (currentParagraph == null)
                 currentParagraph = FactoryProperties.CreateParagraph(cprops);
             currentParagraph.Add(factoryProperties.CreateChunk(buf.ToString(), cprops));
+            isParagraph = false;
         }
-        
-        public bool Add(IElement element) {
+
+        public bool Add(IElement element)
+        {
             objectList.Add(element);
             return true;
         }
-        
-        public void ClearTextWrap() {
+
+        public void ClearTextWrap()
+        {
         }
-        
-        public void Close() {
+
+        public void Close()
+        {
         }
-        
-        public bool NewPage() {
+
+        public bool NewPage()
+        {
             return true;
         }
-        
-        public void Open() {
+
+        public void Open()
+        {
         }
-        
-        public void ResetFooter() {
+
+        public void ResetFooter()
+        {
         }
-        
-        public void ResetHeader() {
+
+        public void ResetHeader()
+        {
         }
-        
-        public void ResetPageCount() {
+
+        public void ResetPageCount()
+        {
         }
-        
-        public bool SetMarginMirroring(bool marginMirroring) {
+
+        public bool SetMarginMirroring(bool marginMirroring)
+        {
             return false;
         }
-        
+
         /**
          * @see com.lowagie.text.DocListener#setMarginMirroring(boolean)
          * @since	2.1.6
          */
-        public bool SetMarginMirroringTopBottom(bool marginMirroring) {
+        public bool SetMarginMirroringTopBottom(bool marginMirroring)
+        {
             return false;
         }
 
-        public bool SetMargins(float marginLeft, float marginRight, float marginTop, float marginBottom) {
+        public bool SetMargins(float marginLeft, float marginRight, float marginTop, float marginBottom)
+        {
             return true;
         }
-        
-        public bool SetPageSize(Rectangle pageSize) {
+
+        public bool SetPageSize(Rectangle pageSize)
+        {
             return true;
         }
-        
+
         public const String tagsSupportedString = "ol ul li a pre font span br p div body table td th tr i b u sub sup em strong s strike"
             + " h1 h2 h3 h4 h5 h6 img hr";
-        
+
         public static Hashtable tagsSupported = new Hashtable();
-        
-        static HTMLWorker() {
+
+        static HTMLWorker()
+        {
             StringTokenizer tok = new StringTokenizer(tagsSupportedString);
             while (tok.HasMoreTokens())
                 tagsSupported[tok.NextToken()] = null;
         }
-    
-        public HeaderFooter Footer {
-            set {
+
+        public HeaderFooter Footer
+        {
+            set
+            {
             }
         }
-    
-        public HeaderFooter Header {
-            set {
+
+        public HeaderFooter Header
+        {
+            set
+            {
             }
         }
-    
-        public int PageCount {
-            set {
+
+        public int PageCount
+        {
+            set
+            {
             }
         }
     }
