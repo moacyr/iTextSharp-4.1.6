@@ -4701,6 +4701,16 @@
         <member name="M:iTextSharp.text.html.simpleparser.ChainedProperties.#ctor">
             Creates a new instance of ChainedProperties 
         </member>
+        <member name="M:iTextSharp.text.html.simpleparser.ChainedProperties.ConcatPropertyUntilTag(System.String,System.String)">
+            <summary>
+            Get properties until find first tag.
+            Used to get all properties of an inline style recusively.
+            
+            </summary>
+            <param name="key"></param>
+            <param name="htmlTag"></param>
+            <returns></returns>
+        </member>
         <member name="T:iTextSharp.text.html.simpleparser.FactoryProperties">
             
              @author  psoares
@@ -4769,6 +4779,15 @@
         </member>
         <member name="M:iTextSharp.text.html.simpleparser.IncTable.#ctor(System.Collections.Hashtable)">
             Creates a new instance of IncTable 
+        </member>
+        <member name="M:iTextSharp.text.html.simpleparser.InlineStyle.StyleCell(System.String,iTextSharp.text.pdf.PdfPCell,System.Single@)">
+            <summary>
+            Parse the style values and add to props
+            </summary>
+            <param name="value"></param>
+            <param name="cell"></param>
+            <param name="props"></param>
+            <param name="htmlTag"></param>
         </member>
         <member name="M:iTextSharp.text.html.simpleparser.StyleSheet.#ctor">
             Creates a new instance of StyleSheet 
