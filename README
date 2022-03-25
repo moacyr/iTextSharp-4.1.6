@@ -1,1 +1,4 @@
 The MPL / LGPLv2 version of the iTextSharp library for posterity.
+---
+
+Target platform changed to netstandard2.0
