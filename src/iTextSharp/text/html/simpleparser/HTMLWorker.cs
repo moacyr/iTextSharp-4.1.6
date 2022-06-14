@@ -338,7 +338,7 @@ namespace iTextSharp.text.html.simpleparser
                     cprops.RemoveChain(tag);
                     if (currentParagraph == null)
                         currentParagraph = FactoryProperties.CreateParagraph(cprops);
-                    currentParagraph.Add(new Chunk(img, 0, 0));
+                    currentParagraph.Add(img);
                 }
                 return;
             }

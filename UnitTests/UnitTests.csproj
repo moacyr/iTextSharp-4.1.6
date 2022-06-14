@@ -22,4 +22,10 @@
     <ProjectReference Include="..\src\itextsharp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="iTextSharp\text\Html\semtitulo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

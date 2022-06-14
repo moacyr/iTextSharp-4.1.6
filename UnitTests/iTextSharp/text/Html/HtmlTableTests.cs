@@ -6,7 +6,7 @@ using iTextSharp.text.html.simpleparser;
 using iTextSharp.text.pdf;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTests
+namespace UnitTests.iTextSharp.text.Html
 {
     [TestClass]
     public class HtmlTableTests

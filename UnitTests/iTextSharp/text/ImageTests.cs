@@ -2,6 +2,8 @@
 using iTextSharp.text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using iTextSharp.text.html;
+using iTextSharp.text.html.simpleparser;
 
 namespace UnitTests.iTextSharp.text
 {
@@ -19,5 +21,6 @@ namespace UnitTests.iTextSharp.text
 
             result.Should().NotBeNull();
         }
+
     }
 }
