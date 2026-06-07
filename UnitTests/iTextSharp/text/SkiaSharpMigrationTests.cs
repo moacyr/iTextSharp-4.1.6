@@ -45,7 +45,7 @@ namespace UnitTests.iTextSharp.text
             barcode.Code = "ITEXT";
             barcode.BarHeight = 30;
 
-            SKBitmap bmp = barcode.CreateDrawingImage(
+            using SKBitmap bmp = barcode.CreateDrawingImage(
                 System.Drawing.Color.Black, System.Drawing.Color.White);
 
             bmp.Should().NotBeNull();
