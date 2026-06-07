@@ -93,9 +93,10 @@ Confirmado por varredura. Estes são os únicos pontos que dependem de
   se inofensivos podem ser limpos).
 
 **Adicionar:**
-- `<PackageReference Include="SkiaSharp" Version="2.88.x" />`
-  - Decisão: usar a linha **2.88.x** (suporte sólido e amplo a `netstandard2.0`).
-    Versão exata (ex.: `2.88.9`) confirmada na implementação.
+- `<PackageReference Include="SkiaSharp" Version="3.119.4" />`
+  - Decisão: usar a linha **3.x** (estável mais recente: **3.119.4**). Confirmado
+    via NuGet que o pacote inclui `netstandard2.0` (além de `net10.0` explícito).
+    Revalidar a versão estável vigente no momento da implementação.
 - **Fallback defensivo:** se `System.Drawing.Color`/`Point` não resolverem após
   remover o Compatibility pack, adicionar
   `<PackageReference Include="System.Drawing.Primitives" />` explicitamente.
