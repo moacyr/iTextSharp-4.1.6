@@ -542,11 +542,10 @@ namespace iTextSharp.text
             throw new IOException("The byte array is not a recognized imageformat.");
         }
         /// <summary>
-        /// Converts a SkiaSharp SKBitmap to a Native(PNG, JPG, GIF, WMF) image
+        /// Converts a SkiaSharp SKBitmap to an iText Image (encoded as PNG).
         /// </summary>
-        /// <param name="image"></param>
-        /// <param name="?"></param>
-        /// <returns></returns>
+        /// <param name="image">the SkiaSharp SKBitmap to convert</param>
+        /// <returns>an iText Image</returns>
         public static Image GetInstance(SKBitmap image)
         {
             using (SKData data = image.Encode(SKEncodedImageFormat.Png, 100))
