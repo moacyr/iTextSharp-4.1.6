@@ -542,7 +542,7 @@ namespace iTextSharp.text
             throw new IOException("The byte array is not a recognized imageformat.");
         }
         /// <summary>
-        /// Converts a .NET image to a Native(PNG, JPG, GIF, WMF) image
+        /// Converts a SkiaSharp SKBitmap to a Native(PNG, JPG, GIF, WMF) image
         /// </summary>
         /// <param name="image"></param>
         /// <param name="?"></param>
@@ -561,9 +561,9 @@ namespace iTextSharp.text
         }
 
         /// <summary>
-        /// Gets an instance of an Image from a System.Drwaing.Image.
+        /// Gets an instance of an Image from a SkiaSharp SKBitmap.
         /// </summary>
-        /// <param name="image">the System.Drawing.Image to convert</param>
+        /// <param name="image">the SkiaSharp SKBitmap to convert</param>
         /// <param name="color">
         /// if different from null the transparency
         /// pixels are replaced by this color
@@ -751,9 +751,9 @@ namespace iTextSharp.text
         }
 
         /// <summary>
-        /// Gets an instance of an Image from a System.Drawing.Image.
+        /// Gets an instance of an Image from a SkiaSharp SKBitmap.
         /// </summary>
-        /// <param name="image">the System.Drawing.Image to convert</param>
+        /// <param name="image">the SkiaSharp SKBitmap to convert</param>
         /// <param name="color">
         /// if different from null the transparency
         /// pixels are replaced by this color
