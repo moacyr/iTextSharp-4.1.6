@@ -1,5 +1,6 @@
 using System;
 using iTextSharp.text;
+using SkiaSharp;
 /*
  * $Id: Barcode.cs,v 1.4 2006/07/31 13:51:38 psoares33 Exp $
  * 
@@ -425,6 +426,6 @@ namespace iTextSharp.text.pdf {
             }
         }
 
-        public abstract System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background);
+        public abstract SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background);
     }
 }

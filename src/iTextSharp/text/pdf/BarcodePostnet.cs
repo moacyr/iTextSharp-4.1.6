@@ -1,5 +1,6 @@
 using System;
 using iTextSharp.text;
+using SkiaSharp;
 
 /*
  * Copyright 2002 by Paulo Soares.
@@ -173,7 +174,9 @@ namespace iTextSharp.text.pdf {
             return this.BarcodeSize;
         }
     
-        public override System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+        public override SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
+            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
             int barWidth = (int)x;
             if (barWidth <= 0)
                 barWidth = 1;
@@ -194,14 +197,14 @@ namespace iTextSharp.text.pdf {
                 bars[0] = 0;
                 bars[bars.Length - 1] = 0;
             }
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(width, barTall);
+            SKBitmap bmp = new SKBitmap(width, barTall);
             int seg1 = barTall - barShort;
             for (int i = 0; i < seg1; ++i) {
                 int idx = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     bool dot = (bars[k] == flip);
                     for (int j = 0; j < barDistance; ++j) {
-                        bmp.SetPixel(idx++, i, (dot && j < barWidth) ? foreground : background);
+                        bmp.SetPixel(idx++, i, (dot && j < barWidth) ? fg : bg);
                     }
                 }
             }
@@ -209,7 +212,7 @@ namespace iTextSharp.text.pdf {
                 int idx = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     for (int j = 0; j < barDistance; ++j) {
-                        bmp.SetPixel(idx++, i, (j < barWidth) ? foreground : background);
+                        bmp.SetPixel(idx++, i, (j < barWidth) ? fg : bg);
                     }
                 }
             }

@@ -1,5 +1,6 @@
 using System;
 using iTextSharp.text;
+using SkiaSharp;
 using iTextSharp.text.pdf.codec;
 using System.Collections;
 using System.Text;
@@ -843,11 +844,13 @@ namespace iTextSharp.text.pdf {
             return Image.GetInstance(bitColumns, codeRows, false, Element.CCITTG4, (options & PDF417_INVERT_BITMAP) == 0 ? 0 : Element.CCITT_BLACKIS1, g4, null);
         }
 
-        public virtual System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+        public virtual SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
+            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
             PaintCode();
             int h = (int)yHeight;
             int stride = (bitColumns + 7) / 8;
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(bitColumns, codeRows * h);
+            SKBitmap bmp = new SKBitmap(bitColumns, codeRows * h);
             int y = 0;
             for (int k = 0; k < codeRows; ++k) {
                 for (int hh = 0; hh < h; ++hh) {
@@ -855,7 +858,7 @@ namespace iTextSharp.text.pdf {
                     for (int j = 0; j < bitColumns; ++j) {
                         int b = outBits[p + (j / 8)] & 0xff;
                         b <<= j % 8;
-                        bmp.SetPixel(j, y, (b & 0x80) == 0 ? background : foreground);
+                        bmp.SetPixel(j, y, (b & 0x80) == 0 ? bg : fg);
                     }
                     ++y;
                 }

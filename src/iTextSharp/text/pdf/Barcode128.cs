@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using iTextSharp.text;
+using SkiaSharp;
 /*
  * $Id: Barcode128.cs,v 1.6 2007/10/24 16:31:54 psoares33 Exp $
  *
@@ -670,7 +671,9 @@ namespace iTextSharp.text.pdf {
             return this.BarcodeSize;
         }    
 
-        public override System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+        public override SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
+            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
             String bCode;
             if (codeType == CODE128_RAW) {
                 int idx = code.IndexOf('\uffff');
@@ -686,15 +689,15 @@ namespace iTextSharp.text.pdf {
             int fullWidth = (len + 2) * 11 + 2;
             byte[] bars = GetBarsCode128Raw(bCode);
             int height = (int)barHeight;
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(fullWidth, height);
+            SKBitmap bmp = new SKBitmap(fullWidth, height);
             for (int h = 0; h < height; ++h) {
                 bool print = true;
                 int ptr = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     int w = bars[k];
-                    System.Drawing.Color c = background;
+                    SKColor c = bg;
                     if (print)
-                        c = foreground;
+                        c = fg;
                     print = !print;
                     for (int j = 0; j < w; ++j)
                         bmp.SetPixel(ptr++, h, c);

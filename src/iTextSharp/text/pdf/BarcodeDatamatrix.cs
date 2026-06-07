@@ -1,5 +1,6 @@
 using System;
 using iTextSharp.text;
+using SkiaSharp;
 using iTextSharp.text.pdf.codec;
 using System.Collections;
 /*
@@ -760,19 +761,21 @@ namespace iTextSharp.text.pdf {
         * @param background the color of the background
         * @return the image
         */    
-        public virtual System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+        public virtual SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
             if (image == null)
                 return null;
+            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
+            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
             int h = height + 2 * ws;
             int w = width + 2 * ws;
             int stride = (w + 7) / 8;
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(w, h);
+            SKBitmap bmp = new SKBitmap(w, h);
             for (int k = 0; k < h; ++k) {
                 int p = k * stride;
                 for (int j = 0; j < w; ++j) {
                     int b = image[p + (j / 8)] & 0xff;
                     b <<= j % 8;
-                    bmp.SetPixel(j, k, (b & 0x80) == 0 ? background : foreground);
+                    bmp.SetPixel(j, k, (b & 0x80) == 0 ? bg : fg);
                 }
             }
             return bmp;
