@@ -5215,7 +5215,7 @@
             <param name="img">a byte array</param>
             <returns>an object of type Gif, Jpeg or Png</returns>
         </member>
-        <member name="M:iTextSharp.text.Image.GetInstance(System.Drawing.Image,System.Drawing.Imaging.ImageFormat)">
+        <member name="M:iTextSharp.text.Image.GetInstance(SkiaSharp.SKBitmap)">
             <summary>
             Converts a .NET image to a Native(PNG, JPG, GIF, WMF) image
             </summary>
@@ -5223,7 +5223,7 @@
             <param name="??"></param>
             <returns></returns>
         </member>
-        <member name="M:iTextSharp.text.Image.GetInstance(System.Drawing.Image,iTextSharp.text.Color,System.Boolean)">
+        <member name="M:iTextSharp.text.Image.GetInstance(SkiaSharp.SKBitmap,iTextSharp.text.Color,System.Boolean)">
             <summary>
             Gets an instance of an Image from a System.Drwaing.Image.
             </summary>
@@ -5235,7 +5235,7 @@
             <param name="forceBW">if true the image is treated as black and white</param>
             <returns>an object of type ImgRaw</returns>
         </member>
-        <member name="M:iTextSharp.text.Image.GetInstance(System.Drawing.Image,iTextSharp.text.Color)">
+        <member name="M:iTextSharp.text.Image.GetInstance(SkiaSharp.SKBitmap,iTextSharp.text.Color)">
             <summary>
             Gets an instance of an Image from a System.Drawing.Image.
             </summary>
