@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using SkiaSharp;
 
 /*
  * $Id: Image.cs,v 1.28 2008/05/13 11:25:11 psoares33 Exp $
@@ -546,11 +547,17 @@ namespace iTextSharp.text
         /// <param name="image"></param>
         /// <param name="?"></param>
         /// <returns></returns>
-        public static Image GetInstance(System.Drawing.Image image, System.Drawing.Imaging.ImageFormat format)
+        public static Image GetInstance(SKBitmap image)
         {
-            MemoryStream ms = new MemoryStream();
-            image.Save(ms, format);
-            return GetInstance(ms.ToArray());
+            using (SKData data = image.Encode(SKEncodedImageFormat.Png, 100))
+            {
+                return GetInstance(data.ToArray());
+            }
+        }
+
+        private static int ToArgb(SKColor c)
+        {
+            return (c.Alpha << 24) | (c.Red << 16) | (c.Green << 8) | c.Blue;
         }
 
         /// <summary>
@@ -563,9 +570,9 @@ namespace iTextSharp.text
         /// </param>
         /// <param name="forceBW">if true the image is treated as black and white</param>
         /// <returns>an object of type ImgRaw</returns>
-        public static Image GetInstance(System.Drawing.Image image, Color color, bool forceBW)
+        public static Image GetInstance(SKBitmap image, Color color, bool forceBW)
         {
-            System.Drawing.Bitmap bm = (System.Drawing.Bitmap)image;
+            SKBitmap bm = image;
             int w = bm.Width;
             int h = bm.Height;
             int pxv = 0;
@@ -591,7 +598,7 @@ namespace iTextSharp.text
                     {
                         for (int i = 0; i < w; i++)
                         {
-                            int alpha = bm.GetPixel(i, j).A;
+                            int alpha = bm.GetPixel(i, j).Alpha;
                             if (alpha < 250)
                             {
                                 if (transColor == 1)
@@ -599,7 +606,7 @@ namespace iTextSharp.text
                             }
                             else
                             {
-                                if ((bm.GetPixel(i, j).ToArgb() & 0x888) != 0)
+                                if ((ToArgb(bm.GetPixel(i, j)) & 0x888) != 0)
                                     currByte |= cbyte;
                             }
                             cbyte >>= 1;
@@ -623,14 +630,14 @@ namespace iTextSharp.text
                         {
                             if (transparency == null)
                             {
-                                int alpha = bm.GetPixel(i, j).A;
+                                int alpha = bm.GetPixel(i, j).Alpha;
                                 if (alpha == 0)
                                 {
                                     transparency = new int[2];
-                                    transparency[0] = transparency[1] = ((bm.GetPixel(i, j).ToArgb() & 0x888) != 0) ? 1 : 0;
+                                    transparency[0] = transparency[1] = ((ToArgb(bm.GetPixel(i, j)) & 0x888) != 0) ? 1 : 0;
                                 }
                             }
-                            if ((bm.GetPixel(i, j).ToArgb() & 0x888) != 0)
+                            if ((ToArgb(bm.GetPixel(i, j)) & 0x888) != 0)
                                 currByte |= cbyte;
                             cbyte >>= 1;
                             if (cbyte == 0 || wMarker + 1 >= w)
@@ -670,7 +677,7 @@ namespace iTextSharp.text
                     {
                         for (int i = 0; i < w; i++)
                         {
-                            int alpha = (bm.GetPixel(i, j).ToArgb() >> 24) & 0xff;
+                            int alpha = (ToArgb(bm.GetPixel(i, j)) >> 24) & 0xff;
                             if (alpha < 250)
                             {
                                 pixelsByte[index++] = (byte)red;
@@ -679,7 +686,7 @@ namespace iTextSharp.text
                             }
                             else
                             {
-                                pxv = bm.GetPixel(i, j).ToArgb();
+                                pxv = ToArgb(bm.GetPixel(i, j));
                                 pixelsByte[index++] = (byte)((pxv >> 16) & 0xff);
                                 pixelsByte[index++] = (byte)((pxv >> 8) & 0xff);
                                 pixelsByte[index++] = (byte)((pxv) & 0xff);
@@ -697,7 +704,7 @@ namespace iTextSharp.text
                     {
                         for (int i = 0; i < w; i++)
                         {
-                            pxv = bm.GetPixel(i, j).ToArgb();
+                            pxv = ToArgb(bm.GetPixel(i, j));
                             byte alpha = smask[smaskPtr++] = (byte)((pxv >> 24) & 0xff);
                             /* bugfix by Chris Nokleberg */
                             if (!shades)
@@ -752,7 +759,7 @@ namespace iTextSharp.text
         /// pixels are replaced by this color
         /// </param>
         /// <returns>an object of type ImgRaw</returns>
-        public static Image GetInstance(System.Drawing.Image image, Color color)
+        public static Image GetInstance(SKBitmap image, Color color)
         {
             return Image.GetInstance(image, color, false);
         }
