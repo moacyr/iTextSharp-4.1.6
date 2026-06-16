@@ -4,17 +4,21 @@ The MPL / LGPLv2 version of the iTextSharp library, kept for posterity and
 maintained as a **cross-platform** PDF library.
 
 This fork targets **`netstandard2.0`** and no longer depends on GDI+
-(`System.Drawing.Common`, Windows-only). The raster surface was migrated to
-[**SkiaSharp**](https://github.com/mono/SkiaSharp), so the library runs on
-Windows, Linux and macOS without `PlatformNotSupportedException`.
+(`System.Drawing.Common`, Windows-only). It also has **no external graphics
+dependency at all**: the small raster surface that used to need GDI+ (and, in an
+intermediate step, SkiaSharp) was reimplemented in pure managed C#. The library
+runs on Windows, Linux and macOS with **no native binaries** and nothing to keep
+updated.
 
 ## Highlights
 
 - **Target framework:** `netstandard2.0` (library), `net10.0` (tests).
-- **No GDI+ / Windows dependency:** `Microsoft.Windows.Compatibility`,
-  `UseWindowsForms` and the `System.Drawing` reference were removed.
-- **Raster via SkiaSharp 3.119.4:** `SKBitmap` / `SKColor` / `SKMatrix` replace
-  `System.Drawing.Bitmap` / `Image` / `Imaging.ImageFormat` / `Drawing2D.Matrix`.
+- **No third-party runtime dependency:** the library references only the
+  `netstandard2.0` contract. No GDI+, no SkiaSharp, no native assets.
+- **Pure-managed raster:** the barcode `CreateDrawingImage` helpers and
+  `Image.GetInstance` use [`DrawingImage`](src/iTextSharp/text/pdf/DrawingImage.cs),
+  a tiny 32-bit ARGB raster, and
+  [`GraphicsMatrix`](src/iTextSharp/text/pdf/GraphicsMatrix.cs) for transforms.
 - **Unchanged core:** PDF generation and the managed image decoders
   (`PngImage`, `GifImage`, `TiffImage`, `BmpImage`, `Jpeg`, `Jpeg2000`) are
   untouched. Loading images from `byte[]` / stream / file / URL / base64 works
@@ -25,22 +29,13 @@ Windows, Linux and macOS without `PlatformNotSupportedException`.
 
 ## Dependencies
 
-| Package | Version | Notes |
-| --- | --- | --- |
-| `SkiaSharp` | 3.119.4 | Cross-platform 2D graphics. |
-| `SkiaSharp.NativeAssets.*` | 3.119.4 | Native binaries. Win32 and macOS ship in the metapackage. |
+The compiled library has **no third-party runtime dependencies** beyond the
+`netstandard2.0` reference assemblies. Because there are no native binaries, no
+per-platform packages (e.g. `SkiaSharp.NativeAssets.*`) are required — it runs
+anywhere a `netstandard2.0` consumer runs.
 
-### Cross-platform native assets
-
-The `SkiaSharp` metapackage bundles native binaries for **Windows** and
-**macOS** only. To run on **Linux** (containers, CI, servers) add the Linux
-native assets to your consuming app:
-
-```xml
-<PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" />
-```
-
-(The test project already references this so the suite runs on Linux CI.)
+The **test project** additionally uses MSTest, FluentAssertions and
+coverlet (dev-only, not part of the shipped library).
 
 ## Build & test
 
@@ -52,22 +47,41 @@ dotnet test  UnitTests/UnitTests.csproj -c Debug
 The library builds as `netstandard2.0`; the test project runs on `net10.0`
 (MSTest + FluentAssertions).
 
-## Breaking changes (SkiaSharp migration)
+## Working with the raster API
+
+`DrawingImage` is a dependency-free 32-bit ARGB raster. Pixels are `0xAARRGGBB`;
+pack a `System.Drawing.Color` with its built-in `ToArgb()`:
+
+```csharp
+var raster = barcode.CreateDrawingImage(
+    System.Drawing.Color.Black, System.Drawing.Color.White);
+
+// raster.Width / raster.Height / raster.GetPixel(x, y) / raster.SetPixel(x, y, argb)
+Image pdfImage = Image.GetInstance(raster);   // builds the iText image directly
+```
+
+## Breaking changes
 
 Only consumers of the former GDI+ convenience APIs are affected. Code that uses
 `byte[]` / streams and normal PDF generation is **not** affected.
 
-| Before (GDI+) | After (SkiaSharp) |
+| Before (original GDI+ API) | After (pure managed) |
 | --- | --- |
-| `Image.GetInstance(System.Drawing.Image, ImageFormat)` | `Image.GetInstance(SKBitmap)` — encodes **PNG** (lossless) |
-| `Image.GetInstance(System.Drawing.Image, Color[, bool])` | `Image.GetInstance(SKBitmap, Color[, bool])` |
-| `Barcode.CreateDrawingImage(...)` → `System.Drawing.Image` | `Barcode.CreateDrawingImage(...)` → `SKBitmap` (params stay `System.Drawing.Color`) |
-| `PdfContentByte.Transform(System.Drawing.Drawing2D.Matrix)` | `PdfContentByte.Transform(SKMatrix)` |
+| `Image.GetInstance(System.Drawing.Image, ImageFormat)` | `Image.GetInstance(DrawingImage)` |
+| `Image.GetInstance(System.Drawing.Image, Color[, bool])` | `Image.GetInstance(DrawingImage, Color[, bool])` |
+| `Barcode.CreateDrawingImage(...)` → `System.Drawing.Image` | `Barcode.CreateDrawingImage(...)` → `DrawingImage` (params stay `System.Drawing.Color`) |
+| `PdfContentByte.Transform(System.Drawing.Drawing2D.Matrix)` | `PdfContentByte.Transform(GraphicsMatrix)` |
+
+> An intermediate revision used SkiaSharp (`SKBitmap` / `SKColor` / `SKMatrix`)
+> for these APIs. That dependency has since been removed in favor of the managed
+> `DrawingImage` / `GraphicsMatrix` types above.
 
 ## Migration documents
 
-- Design spec: [`docs/superpowers/specs/2026-06-07-itextsharp-skiasharp-net10-migration-design.md`](docs/superpowers/specs/2026-06-07-itextsharp-skiasharp-net10-migration-design.md)
-- Implementation plan: [`docs/superpowers/plans/2026-06-07-itextsharp-skiasharp-net10-migration.md`](docs/superpowers/plans/2026-06-07-itextsharp-skiasharp-net10-migration.md)
+- Remove SkiaSharp (current): [design](docs/superpowers/specs/2026-06-16-itextsharp-remove-skiasharp-dependency-design.md) ·
+  [plan](docs/superpowers/plans/2026-06-16-itextsharp-remove-skiasharp-dependency.md)
+- GDI+ → SkiaSharp / .NET 10 (previous step): [design](docs/superpowers/specs/2026-06-07-itextsharp-skiasharp-net10-migration-design.md) ·
+  [plan](docs/superpowers/plans/2026-06-07-itextsharp-skiasharp-net10-migration.md)
 
 ## License
 

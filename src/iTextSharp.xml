@@ -5215,18 +5215,18 @@
             <param name="img">a byte array</param>
             <returns>an object of type Gif, Jpeg or Png</returns>
         </member>
-        <member name="M:iTextSharp.text.Image.GetInstance(SkiaSharp.SKBitmap)">
+        <member name="M:iTextSharp.text.Image.GetInstance(iTextSharp.text.pdf.DrawingImage)">
             <summary>
-            Converts a SkiaSharp SKBitmap to an iText Image (encoded as PNG).
+            Converts a DrawingImage raster to an iText Image.
             </summary>
-            <param name="image">the SkiaSharp SKBitmap to convert</param>
+            <param name="image">the raster to convert</param>
             <returns>an iText Image</returns>
         </member>
-        <member name="M:iTextSharp.text.Image.GetInstance(SkiaSharp.SKBitmap,iTextSharp.text.Color,System.Boolean)">
+        <member name="M:iTextSharp.text.Image.GetInstance(iTextSharp.text.pdf.DrawingImage,iTextSharp.text.Color,System.Boolean)">
             <summary>
-            Gets an instance of an Image from a SkiaSharp SKBitmap.
+            Gets an instance of an Image from a DrawingImage raster.
             </summary>
-            <param name="image">the SkiaSharp SKBitmap to convert</param>
+            <param name="image">the raster to convert</param>
             <param name="color">
             if different from null the transparency
             pixels are replaced by this color
@@ -5234,11 +5234,11 @@
             <param name="forceBW">if true the image is treated as black and white</param>
             <returns>an object of type ImgRaw</returns>
         </member>
-        <member name="M:iTextSharp.text.Image.GetInstance(SkiaSharp.SKBitmap,iTextSharp.text.Color)">
+        <member name="M:iTextSharp.text.Image.GetInstance(iTextSharp.text.pdf.DrawingImage,iTextSharp.text.Color)">
             <summary>
-            Gets an instance of an Image from a SkiaSharp SKBitmap.
+            Gets an instance of an Image from a DrawingImage raster.
             </summary>
-            <param name="image">the SkiaSharp SKBitmap to convert</param>
+            <param name="image">the raster to convert</param>
             <param name="color">
             if different from null the transparency
             pixels are replaced by this color
@@ -10930,6 +10930,20 @@
             @return the unicode to CID map
             @since 2.1.7
         </member>
+        <member name="T:iTextSharp.text.pdf.DrawingImage">
+            <summary>
+            A minimal, dependency-free 32-bit ARGB raster image. Replaces the
+            SkiaSharp <c>SKBitmap</c> previously returned by the barcode
+            <c>CreateDrawingImage</c> helpers, so the library no longer needs a
+            native graphics dependency. Pixels are stored as 0xAARRGGBB, row-major.
+            </summary>
+        </member>
+        <member name="M:iTextSharp.text.pdf.DrawingImage.SetPixel(System.Int32,System.Int32,System.Int32)">
+            <summary>Sets the pixel at (x, y). <paramref name="argb"/> is 0xAARRGGBB.</summary>
+        </member>
+        <member name="M:iTextSharp.text.pdf.DrawingImage.GetPixel(System.Int32,System.Int32)">
+            <summary>Gets the pixel at (x, y) as 0xAARRGGBB.</summary>
+        </member>
         <member name="T:iTextSharp.text.pdf.draw.DottedLineSeparator">
             Element that draws a dotted line from left to right.
             Can be added directly to a document or column.
@@ -11557,6 +11571,13 @@
             if needed.
             @param text the text
             @return a <CODE>Phrase</CODE> with one or more chunks
+        </member>
+        <member name="T:iTextSharp.text.pdf.GraphicsMatrix">
+            <summary>
+            A minimal affine transform (PDF graphics matrix) used by
+            <see cref="M:iTextSharp.text.pdf.PdfContentByte.Transform(iTextSharp.text.pdf.GraphicsMatrix)"/>. Replaces the SkiaSharp
+            <c>SKMatrix</c>. The six values map to the PDF "cm" operator [a b c d e f].
+            </summary>
         </member>
         <member name="T:iTextSharp.text.pdf.GrayColor">
             
