@@ -1,6 +1,5 @@
 using System;
 using iTextSharp.text;
-using SkiaSharp;
 /*
  * $Id: Barcode39.cs,v 1.6 2007/05/03 19:36:07 psoares33 Exp $
  *
@@ -340,9 +339,9 @@ namespace iTextSharp.text.pdf {
             return this.BarcodeSize;
         }
 
-        public override SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
-            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
-            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
+        public override DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            int fg = foreground.ToArgb();
+            int bg = background.ToArgb();
             String bCode = code;
             if (extended)
                 bCode = GetCode39Ex(code);
@@ -352,14 +351,14 @@ namespace iTextSharp.text.pdf {
             int nn = (int)n;
             int fullWidth = len * (6 + 3 * nn) + (len - 1);
             int height = (int)barHeight;
-            SKBitmap bmp = new SKBitmap(fullWidth, height);
+            DrawingImage bmp = new DrawingImage(fullWidth, height);
             byte[] bars = GetBarsCode39(bCode);
             for (int h = 0; h < height; ++h) {
                 bool print = true;
                 int ptr = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     int w = (bars[k] == 0 ? 1 : nn);
-                    SKColor c = bg;
+                    int c = bg;
                     if (print)
                         c = fg;
                     print = !print;

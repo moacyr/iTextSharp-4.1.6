@@ -1,6 +1,5 @@
 using System;
 using iTextSharp.text;
-using SkiaSharp;
 /*
  * $Id: BarcodeCodabar.cs,v 1.7 2007/02/22 20:48:38 psoares33 Exp $
  *
@@ -291,9 +290,9 @@ namespace iTextSharp.text.pdf
             return BarcodeSize;
         }
 
-        public override SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
-            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
-            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
+        public override DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            int fg = foreground.ToArgb();
+            int bg = background.ToArgb();
             String fullCode = code;
             if (generateChecksum && checksumText)
                 fullCode = CalculateChecksum(code);
@@ -307,13 +306,13 @@ namespace iTextSharp.text.pdf
             int narrow = bars.Length - wide;
             int fullWidth = narrow + wide * (int)n;
             int height = (int)barHeight;
-            SKBitmap bmp = new SKBitmap(fullWidth, height);
+            DrawingImage bmp = new DrawingImage(fullWidth, height);
             for (int h = 0; h < height; ++h) {
                 bool print = true;
                 int ptr = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     int w = (bars[k] == 0 ? 1 : (int)n);
-                    SKColor c = bg;
+                    int c = bg;
                     if (print)
                         c = fg;
                     print = !print;

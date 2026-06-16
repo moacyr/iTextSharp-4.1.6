@@ -1,7 +1,6 @@
 using System;
 using iTextSharp.text;
 using System.Collections;
-using SkiaSharp;
 
 /*
  * Copyright 2002 by Paulo Soares.
@@ -646,9 +645,9 @@ namespace iTextSharp.text.pdf {
             return rect;
         }
 
-        public override SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
-            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
-            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
+        public override DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            int fg = foreground.ToArgb();
+            int bg = background.ToArgb();
             int width = 0;
             byte[] bars = null;
             switch (codeType) {
@@ -680,13 +679,13 @@ namespace iTextSharp.text.pdf {
                     throw new InvalidOperationException("Invalid code type.");
             }
             int height = (int)barHeight;
-            SKBitmap bmp = new SKBitmap(width, height);
+            DrawingImage bmp = new DrawingImage(width, height);
             for (int h = 0; h < height; ++h) {
                 bool print = true;
                 int ptr = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     int w = bars[k];
-                    SKColor c = bg;
+                    int c = bg;
                     if (print)
                         c = fg;
                     print = !print;

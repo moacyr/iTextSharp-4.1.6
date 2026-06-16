@@ -1,6 +1,5 @@
 using System;
 using iTextSharp.text;
-using SkiaSharp;
 using iTextSharp.text.pdf.codec;
 using System.Collections;
 using System.Text;
@@ -844,13 +843,13 @@ namespace iTextSharp.text.pdf {
             return Image.GetInstance(bitColumns, codeRows, false, Element.CCITTG4, (options & PDF417_INVERT_BITMAP) == 0 ? 0 : Element.CCITT_BLACKIS1, g4, null);
         }
 
-        public virtual SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
-            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
-            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
+        public virtual DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            int fg = foreground.ToArgb();
+            int bg = background.ToArgb();
             PaintCode();
             int h = (int)yHeight;
             int stride = (bitColumns + 7) / 8;
-            SKBitmap bmp = new SKBitmap(bitColumns, codeRows * h);
+            DrawingImage bmp = new DrawingImage(bitColumns, codeRows * h);
             int y = 0;
             for (int k = 0; k < codeRows; ++k) {
                 for (int hh = 0; hh < h; ++hh) {

@@ -1,6 +1,5 @@
 using System;
 using iTextSharp.text;
-using SkiaSharp;
 
 /*
  * Copyright 2002 by Paulo Soares.
@@ -144,7 +143,7 @@ namespace iTextSharp.text.pdf {
             return this.BarcodeSize;
         }
 
-        public override SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+        public override DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
             throw new InvalidOperationException("The two barcodes must be composed externally.");
         }
     }

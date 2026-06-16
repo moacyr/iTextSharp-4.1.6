@@ -1,6 +1,5 @@
 using System;
 using iTextSharp.text;
-using SkiaSharp;
 
 /*
  * Copyright 2002 by Paulo Soares.
@@ -174,9 +173,9 @@ namespace iTextSharp.text.pdf {
             return this.BarcodeSize;
         }
     
-        public override SKBitmap CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
-            SKColor fg = new SKColor(foreground.R, foreground.G, foreground.B, foreground.A);
-            SKColor bg = new SKColor(background.R, background.G, background.B, background.A);
+        public override DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            int fg = foreground.ToArgb();
+            int bg = background.ToArgb();
             int barWidth = (int)x;
             if (barWidth <= 0)
                 barWidth = 1;
@@ -197,7 +196,7 @@ namespace iTextSharp.text.pdf {
                 bars[0] = 0;
                 bars[bars.Length - 1] = 0;
             }
-            SKBitmap bmp = new SKBitmap(width, barTall);
+            DrawingImage bmp = new DrawingImage(width, barTall);
             int seg1 = barTall - barShort;
             for (int i = 0; i < seg1; ++i) {
                 int idx = 0;
