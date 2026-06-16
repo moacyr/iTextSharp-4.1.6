@@ -288,7 +288,9 @@ namespace iTextSharp.text.pdf {
             return this.BarcodeSize;
         }   
 
-        public override System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+        public override DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            int fg = foreground.ToArgb();
+            int bg = background.ToArgb();
             String bCode = KeepNumbers(code);
             if (generateChecksum)
                 bCode += GetChecksum(bCode);
@@ -297,15 +299,15 @@ namespace iTextSharp.text.pdf {
             int fullWidth = len * (3 + 2 * nn) + (6 + nn );
             byte[] bars = GetBarsInter25(bCode);
             int height = (int)barHeight;
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(fullWidth, height);
+            DrawingImage bmp = new DrawingImage(fullWidth, height);
             for (int h = 0; h < height; ++h) {
                 bool print = true;
                 int ptr = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     int w = (bars[k] == 0 ? 1 : nn);
-                    System.Drawing.Color c = background;
+                    int c = bg;
                     if (print)
-                        c = foreground;
+                        c = fg;
                     print = !print;
                     for (int j = 0; j < w; ++j)
                         bmp.SetPixel(ptr++, h, c);

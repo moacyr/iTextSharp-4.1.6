@@ -173,7 +173,9 @@ namespace iTextSharp.text.pdf {
             return this.BarcodeSize;
         }
     
-        public override System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+        public override DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            int fg = foreground.ToArgb();
+            int bg = background.ToArgb();
             int barWidth = (int)x;
             if (barWidth <= 0)
                 barWidth = 1;
@@ -194,14 +196,14 @@ namespace iTextSharp.text.pdf {
                 bars[0] = 0;
                 bars[bars.Length - 1] = 0;
             }
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(width, barTall);
+            DrawingImage bmp = new DrawingImage(width, barTall);
             int seg1 = barTall - barShort;
             for (int i = 0; i < seg1; ++i) {
                 int idx = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     bool dot = (bars[k] == flip);
                     for (int j = 0; j < barDistance; ++j) {
-                        bmp.SetPixel(idx++, i, (dot && j < barWidth) ? foreground : background);
+                        bmp.SetPixel(idx++, i, (dot && j < barWidth) ? fg : bg);
                     }
                 }
             }
@@ -209,7 +211,7 @@ namespace iTextSharp.text.pdf {
                 int idx = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     for (int j = 0; j < barDistance; ++j) {
-                        bmp.SetPixel(idx++, i, (j < barWidth) ? foreground : background);
+                        bmp.SetPixel(idx++, i, (j < barWidth) ? fg : bg);
                     }
                 }
             }

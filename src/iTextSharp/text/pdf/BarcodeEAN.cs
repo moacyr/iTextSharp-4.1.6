@@ -645,7 +645,9 @@ namespace iTextSharp.text.pdf {
             return rect;
         }
 
-        public override System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+        public override DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background) {
+            int fg = foreground.ToArgb();
+            int bg = background.ToArgb();
             int width = 0;
             byte[] bars = null;
             switch (codeType) {
@@ -677,15 +679,15 @@ namespace iTextSharp.text.pdf {
                     throw new InvalidOperationException("Invalid code type.");
             }
             int height = (int)barHeight;
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(width, height);
+            DrawingImage bmp = new DrawingImage(width, height);
             for (int h = 0; h < height; ++h) {
                 bool print = true;
                 int ptr = 0;
                 for (int k = 0; k < bars.Length; ++k) {
                     int w = bars[k];
-                    System.Drawing.Color c = background;
+                    int c = bg;
                     if (print)
-                        c = foreground;
+                        c = fg;
                     print = !print;
                     for (int j = 0; j < w; ++j)
                         bmp.SetPixel(ptr++, h, c);

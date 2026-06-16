@@ -425,6 +425,6 @@ namespace iTextSharp.text.pdf {
             }
         }
 
-        public abstract System.Drawing.Image CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background);
+        public abstract DrawingImage CreateDrawingImage(System.Drawing.Color foreground, System.Drawing.Color background);
     }
 }
