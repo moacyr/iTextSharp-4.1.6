@@ -5,7 +5,6 @@ using iTextSharp.text;
 using iTextSharp.text.exceptions;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.intern;
-using SkiaSharp;
 
 /*
  * $Id: PdfContentByte.cs,v 1.23 2008/05/13 11:25:19 psoares33 Exp $
@@ -2845,7 +2844,7 @@ namespace iTextSharp.text.pdf {
             prs.AddDefaultColor(name, obj);
         }
 
-        public void Transform(SKMatrix tx) {
+        public void Transform(GraphicsMatrix tx) {
             ConcatCTM(tx.ScaleX, tx.SkewY, tx.SkewX, tx.ScaleY, tx.TransX, tx.TransY);
         }
 
